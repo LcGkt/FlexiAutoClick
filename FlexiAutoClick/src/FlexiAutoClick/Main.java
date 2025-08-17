@@ -28,10 +28,11 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        versaoServidor = Bukkit.getBukkitVersion().split("-")[0]; // ex: 1.8.8
+        versaoServidor = Bukkit.getBukkitVersion().split("-")[0];
         carregarConfigs();
         getLogger().info("FlexiAutoClick habilitado! Servidor rodando: " + versaoServidor);
-        verificarAtualizacao();
+
+        iniciarVerificacaoPeriodica();
         iniciarTaskGlobal();
     }
 
@@ -62,7 +63,6 @@ public class Main extends JavaPlugin {
         return messages.getString(path, "Mensagem não encontrada: " + path).replace("&", "§");
     }
 
-    // Tocar sons compatíveis de 1.8 até 1.21
     private void tocarSom(Player p, String som) {
         try {
             if (som == null || som.isEmpty()) return;
@@ -72,7 +72,6 @@ public class Main extends JavaPlugin {
                 versaoServidor.startsWith("1.10") || versaoServidor.startsWith("1.11") ||
                 versaoServidor.startsWith("1.12")) {
 
-                // Mapear sons novos para sons 1.8 compatíveis
                 switch (som.toUpperCase()) {
                     case "ENTITY_PLAYER_ATTACK_STRONG":
                     case "ENTITY_PLAYER_ATTACK_KNOCKBACK":
@@ -82,6 +81,9 @@ public class Main extends JavaPlugin {
                         break;
                     case "CLICK":
                         s = Sound.CLICK;
+                        break;
+                    case "LEVEL_UP":
+                        s = Sound.LEVEL_UP;
                         break;
                     default:
                         s = Sound.valueOf(som.toUpperCase());
@@ -203,31 +205,50 @@ public class Main extends JavaPlugin {
     private void verificarAtualizacao() {
         if (!config.getBoolean("update", true)) return;
 
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            try {
-                String currentVersion = getDescription().getVersion();
-                URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=128065");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                connection.setConnectTimeout(5000);
-                connection.setReadTimeout(5000);
+        try {
+            String currentVersion = getDescription().getVersion();
+            URL url = new URL("https://api.spigotmc.org/legacy/update.php?resource=128065");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
 
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-                    String latestVersion = reader.readLine().trim();
-                    if (!latestVersion.equals(currentVersion)) {
-                        getLogger().warning("===============================================");
-                        getLogger().warning("Existe uma nova versão do FlexiAutoClick!");
-                        getLogger().warning("Sua versão: " + currentVersion + " | Nova versão: " + latestVersion);
-                        getLogger().warning("Baixe em: https://www.spigotmc.org/resources/flexiautoclick.128065/");
-                        getLogger().warning("===============================================");
-                    } else {
-                        getLogger().info("Você está utilizando a versão mais recente do FlexiAutoClick.");
-                    }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                String latestVersion = reader.readLine().trim();
+                if (!latestVersion.equals(currentVersion)) {
+                    getLogger().warning("Nova versão do FlexiAutoClick disponível: " + latestVersion);
+
+                    // Notifica admins online
+                    Bukkit.getScheduler().runTask(this, () -> {
+                        for (Player p : Bukkit.getOnlinePlayers()) {
+                            if (p.hasPermission("autoclick.admin")) {
+                                p.sendMessage("§c[FlexiAutoClick] §eNova versão disponível!");
+                                p.sendMessage("§eSua versão: §f" + latestVersion + " §e| Nova versão: §f" + currentVersion);
+                                p.sendMessage("§eBaixe em: §fhttps://www.spigotmc.org/resources/flexiautoclick.128065/");
+                                tocarSom(p, "LEVEL_UP");
+                            }
+                        }
+                    });
+
+                } else {
+                    getLogger().info("Você está utilizando a versão mais recente do FlexiAutoClick.");
                 }
-            } catch (Exception e) {
-                getLogger().warning("Não foi possível verificar atualizações: " + e.getMessage());
             }
-        });
+        } catch (Exception e) {
+            getLogger().warning("Não foi possível verificar atualizações: " + e.getMessage());
+        }
+    }
+
+    private void iniciarVerificacaoPeriodica() {
+        int intervaloMinutos = config.getInt("check-update-minutes", 30);
+        long intervaloTicks = intervaloMinutos * 60L * 20L;
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                verificarAtualizacao();
+            }
+        }.runTaskTimerAsynchronously(this, 0L, intervaloTicks);
     }
 
     private static class PlayerCache {

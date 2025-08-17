@@ -30,5 +30,9 @@ som-ativado: "ORB_PICKUP"
 # Som ao desativar autoclick
 som-desativado: "CLICK"
 
+# Som quando tem um update no plugin
+som-update: LEVEL_UP
+
 # Habilitar ou desabilitar verificação de atualização do plugin
 update: true
+check-update-minutes: 30
