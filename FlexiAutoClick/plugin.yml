@@ -1,0 +1,19 @@
+name: FlexiAutoClick
+main: FlexiAutoClick.Main
+version: 1.0.3
+author: LcG
+description: Plugin de AutoClick
+
+commands:
+  flexiautoclick:
+    description: Ativa ou desativa o AutoClick
+    aliases: [autoclick, fautoclick]
+    usage: /<command> [reload]
+
+permissions:
+  autoclick.use:
+    description: Permissao para usar o AutoClick
+    default: true
+  autoclick.admin:
+    description: Permissao para recarregar o plugin
+    default: op

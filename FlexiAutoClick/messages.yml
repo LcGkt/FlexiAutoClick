@@ -1,0 +1,9 @@
+# FlexiAutoClick - Mensagens do plugin
+# Pode usar cores com & (serão convertidas para §)
+Mensagens:
+  apenas-jogadores: "&cApenas jogadores podem usar este comando!"
+  sem-permissao: "&cVocê não tem permissão para usar este comando."
+  reload: "&aConfigurações recarregadas com sucesso!"
+  ativado: "&aAutoClick ativado!"
+  desativado: "&cAutoClick desativado!"
+  mundo-bloqueado: "&cVocê não pode usar o AutoClick neste mundo (&f{world}&c)!"

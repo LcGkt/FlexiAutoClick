@@ -1,0 +1,34 @@
+# FlexiAutoClick - Configuração principal
+# Suporte: https://discord.gg/aWREkHBcyw
+
+# Comando de reload
+ComandoReload:
+  Principal: "flexiautoclick"
+  Aliases: ["autoclick", "fautoclick"]
+
+# Configuração do autoclick
+# Tick por click do autoclick (quanto menor, mais rápido)
+ticksporclick: 5
+
+# Ativar ou desativar ataque em área (atinge todos os mobs próximos)
+hitarea: true
+
+# Alcance do ataque (em blocos)
+range: 3
+
+# Dano base por hit
+dano: 2.0
+
+# Mundos permitidos (case-insensitive)
+worlds:
+  - "world"
+  - "world_nether"
+
+# Som ao ativar autoclick
+som-ativado: "ORB_PICKUP"
+
+# Som ao desativar autoclick
+som-desativado: "CLICK"
+
+# Habilitar ou desabilitar verificação de atualização do plugin
+update: true
